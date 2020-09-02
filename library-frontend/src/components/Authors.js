@@ -1,6 +1,6 @@
   
 import React, { useState } from 'react'
-import { gql, useQuery, useMutation, throwServerError } from '@apollo/client'
+import { gql, useQuery, useMutation } from '@apollo/client'
 import Select from 'react-select'
 import Error from './Error'
 
@@ -19,7 +19,7 @@ mutation editAuthor($name: String, $setBornTo: Int) {
     name: $name,
     setBornTo: $setBornTo
   ) {
-    name,
+    name
     born
   }
 }
@@ -66,7 +66,7 @@ const Authors = (props) => {
   }
   const authorsNames = result.data.allAuthors.map(a => a.name)
   const options = authorsNames.map(name => ({ value: name, label: name }))
-
+if (props.token) {
   return (
     
     <div>
@@ -90,6 +90,7 @@ const Authors = (props) => {
               <td>{a.bookCount}</td>
             </tr>
           )}
+
         </tbody>
       </table>
       <h2>Set birthday</h2>
@@ -104,6 +105,34 @@ const Authors = (props) => {
       </form>
     </div>
   )
+}
+return (
+    
+  <div>
+    <h2>authors</h2>
+    <table>
+      <tbody>
+        <tr>
+          <th></th>
+          <th>
+            born
+          </th>
+          <th>
+            books
+          </th>
+        </tr>
+        {result.data.allAuthors.map(a =>
+          <tr key={a.name}>
+            <td>{a.name}</td>
+            <td>{a.born}</td>
+            <td>{a.bookCount}</td>
+          </tr>
+        )}
+
+      </tbody>
+    </table>
+  </div>
+)
 }
 
 export default Authors

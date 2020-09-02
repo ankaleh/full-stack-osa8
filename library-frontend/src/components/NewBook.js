@@ -1,19 +1,38 @@
 import React, { useState } from 'react'
 import { gql, useMutation } from '@apollo/client'
 import Error from './Error'
+//import { ALL_BOOKS } from './Books'?????
 
 const CREATE_BOOK = gql`
 mutation addBook($title: String, $author: String, $published: Int, $genres: [String]) {
   addBook(
     title: $title,
-    author: $author,
+    author: $author
     published: $published,
     genres: $genres
   ) {
-    title,
-    author
+    title
+
   }
 }
+`
+const ALL_BOOKS = gql`
+  query {
+    allBooks {
+      title
+      
+      published
+    }
+  }
+`
+const ALL_AUTHORS = gql`
+  query {
+    allAuthors {
+      name
+      born
+      bookCount
+    }
+  }
 `
 const NewBook = (props) => {
   const [title, setTitle] = useState('')
@@ -21,11 +40,12 @@ const NewBook = (props) => {
   const [published, setPublished] = useState('')
   const [genre, setGenre] = useState('')
   const [genres, setGenres] = useState([])
-  const [errorMessage , setErrorMessage] = useState(null)
+  
 
   const [createBook] = useMutation(CREATE_BOOK, {
+    refetchQueries: [ { query: ALL_BOOKS }, { query: ALL_AUTHORS }],
     onError: (error) => {
-      setErrorMessage(error.graphQLErrors[0].message)
+      props.setErrorMessage(error.graphQLErrors[0].message)
     }
   })
 
@@ -38,7 +58,7 @@ const NewBook = (props) => {
     
     console.log('add book...')
 
-    createBook({ variables: { title, author, published, genres } })
+    createBook({ variables: { title, author, published, genres } }) //kirjailijan nimi puuttuu!!!
 
     setTitle('')
     setPublished('')
@@ -54,7 +74,7 @@ const NewBook = (props) => {
 
   return (
     <div>
-      <Error errorMessage={errorMessage} />
+      <Error errorMessage={props.errorMessage} />
       <form onSubmit={submit}>
         <div>
           title
