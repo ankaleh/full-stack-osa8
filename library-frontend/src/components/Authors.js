@@ -39,6 +39,7 @@ const Authors = (props) => {
   })
   const result = useQuery(ALL_AUTHORS)
   
+
   const handleSubmit = (event) => {
     event.preventDefault()
     //console.log(selectedOption.value)
@@ -60,12 +61,14 @@ const Authors = (props) => {
     return null
   }
   
-
+  
   if (result.loading) {
     return <div>Tietoja haetaan...</div>
   }
+
   const authorsNames = result.data.allAuthors.map(a => a.name)
   const options = authorsNames.map(name => ({ value: name, label: name }))
+  
 if (props.token) {
   return (
     

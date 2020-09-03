@@ -58,7 +58,7 @@ const NewBook = (props) => {
     
     console.log('add book...')
 
-    createBook({ variables: { title, author, published, genres } }) //kirjailijan nimi puuttuu!!!
+    createBook({ variables: { title, author, published, genres } }) 
 
     setTitle('')
     setPublished('')
@@ -74,6 +74,7 @@ const NewBook = (props) => {
 
   return (
     <div>
+      <h2>Add book</h2>
       <Error errorMessage={props.errorMessage} />
       <form onSubmit={submit}>
         <div>

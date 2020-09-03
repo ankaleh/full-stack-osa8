@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { gql, useQuery } from '@apollo/client'
+import { gql, useQuery/* , useLazyQuery */ } from '@apollo/client'
 
 const ALL_BOOKS = gql`
   query {
@@ -13,14 +13,20 @@ const ALL_BOOKS = gql`
     }
   }
 `
-const Books = ({show, booksOfGenre, setBooksOfGenre}) => {
+/* const USER = gql`
+  query {
+    me {
+      favoriteGenre
+    }
+  }
+` */
+const Books = ({token, show, booksOfGenre, setBooksOfGenre, allBooks, setAllBooks}) => {
 
   //const [booksOfGenre, setBooksOfGenre] = useState(null)
   const [buttonsTexts, setButtonsTexts] = useState([])
 
   const result = useQuery(ALL_BOOKS)
-  //console.log(result)
-
+  //const [getUser, userResult] = useLazyQuery(USER)
 
   const handleClick = (event) => {
     event.preventDefault()
@@ -31,8 +37,22 @@ const Books = ({show, booksOfGenre, setBooksOfGenre}) => {
     //console.log(buttonsTexts)
   }
 
+  /* const handleRecommendedClick = (event) => {
+    event.preventDefault()
+    getUser()
+  }
+
+  useEffect(() => {
+    if (userResult.data && token) {
+        setBooksOfGenre(allBooks.filter(b => 
+          b.genres.includes(userResult.data.me.favoriteGenre))
+          )
+    }
+}, [userResult]) //eslint-disable-line
+ */
   useEffect(() => {
     if (result.data) {
+      setAllBooks(result.data.allBooks)
       let genres = []
       const arraysOfGenres = result.data.allBooks.map(book => 
         book.genres//book.genres.map(g => console.log(g))
@@ -51,11 +71,12 @@ const Books = ({show, booksOfGenre, setBooksOfGenre}) => {
     }
 }, [result.data]) //eslint-disable-line
 
+
   if (!show) {
     return null
   }
 
-  if (result.loading) {
+  if (result.loading /* && userResult.loading */) {
     return <div>Tietoja haetaan...</div>
   }
 
@@ -80,9 +101,11 @@ const Books = ({show, booksOfGenre, setBooksOfGenre}) => {
         )}
       </tbody>
     </table>
-  }
+  } 
+  
   return (
     <div>
+      
       <h2>books</h2>
 
       <table>

@@ -78,7 +78,7 @@ const resolvers = {
   Query: {
       bookCount: () => Book.collection.countDocuments(),
       authorCount: () => Author.collection.countDocuments(),
-      allBooks: async (root, args) => {
+      allBooks: async (root, args, context) => {
         if (args.author && args.genre) {
             //return books.filter(book => book.author===args.author && book.genres.includes(args.genre))
         }
@@ -89,11 +89,18 @@ const resolvers = {
             return Book.find({ genres: { $in: [ args.genre ] } })
         }
         const books = await Book.find({})
-        console.log(books)
+        //console.log(books)
+        //console.log('allBooks: ', context.currentUser)
         return books
       },
-      allAuthors: () => Author.find({}),
-      me: (root, args, context) => context.currentUser,
+      allAuthors: (root, args) => {
+          //console.log(currentUser)
+          return Author.find({})
+      },
+      me: (root, args, { currentUser }) => {
+          //console.log('me: ', currentUser)
+          return currentUser
+      },
     },
 
   Author: {
@@ -114,7 +121,7 @@ const resolvers = {
 
     Mutation: {
       addBook: async (root, args, { currentUser }) => { 
-        console.log(currentUser) 
+        console.log('addBook: ', currentUser) 
         if (!currentUser) {
             throw new AuthenticationError('Not authenticated!)')
         }
@@ -184,7 +191,7 @@ const resolvers = {
           if ( !userLoggingIn && args.password !== 'salasana' ) {
               throw new UserInputError("Wrong credentials!")
           }
-          console.log(userLoggingIn.username, userLoggingIn._id)
+          console.log('login: ', userLoggingIn.username, userLoggingIn._id)
           const userForToken = { username: userLoggingIn.username, id: userLoggingIn._id }
 
           return {value: jwt.sign(userForToken, secret) } //palautetaan skeemassa määritetyn Token-tyypin kenttä value
