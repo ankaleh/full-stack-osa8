@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react'
-import { gql, useMutation } from '@apollo/client'
+import React/* , { useState, useEffect } */ from 'react'
+/* import { gql, useMutation } from '@apollo/client' */
 
-const LOGIN = gql`
+/* const LOGIN = gql`
     mutation login($username: String!, $password: String!){
         login(
             username: $username,
@@ -10,11 +10,14 @@ const LOGIN = gql`
             value
         }
     }
-`
+` */
 
-const LoginForm = ({ token, setToken, setErrorMessage, show }) => {
-    const [username, setUsername] = useState('')
+
+const LoginForm = ({ token, setToken, setErrorMessage, show, handleLogin, username, setUsername, password, setPassword }) => {
+    
+  /* const [username, setUsername] = useState('')
     const [password, setPassword] = useState('')
+    
     
     const [login, result] = useMutation(LOGIN, {
         //refetchQueries: [ { query: ALL_BOOKS }, { query: ALL_AUTHORS }],
@@ -33,12 +36,12 @@ const LoginForm = ({ token, setToken, setErrorMessage, show }) => {
     
     }, [result.data]) // eslint-disable-line
 
-    const handleLogin = (event) => {
+    const handleLogin = async (event) => {
         event.preventDefault()
         //tehdään kysely:
         login({ variables: { username, password } })
     }
-
+ */
     if (!show) {
         return null
       }
@@ -65,4 +68,4 @@ const LoginForm = ({ token, setToken, setErrorMessage, show }) => {
       )
     }
 
-export default LoginForm
+export default  LoginForm

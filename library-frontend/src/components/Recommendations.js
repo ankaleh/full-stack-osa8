@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { gql, useQuery/* , useLazyQuery */ } from '@apollo/client'
+import { gql, useQuery, useLazyQuery } from '@apollo/client'
 
 const USER = gql`
   query {
@@ -8,26 +8,59 @@ const USER = gql`
     }
   }
 `
+const BOOKS_OF_GENRE = gql`
+query allbooks($genre: String){
+  allBooks(genre: $genre) {
+    title
+    author {
+      name
+    }
+    published
+    genres
+  }
+}
+`
+
 const Recommendations = ({ show, booksOfGenre, setBooksOfGenre, token, allBooks }) => {
+    
+    
     const userResult = useQuery(USER)
+    const [getBooks, booksResult] = useLazyQuery(BOOKS_OF_GENRE)
+
     const [booksOfFavoriteGenre, setBooksOfFavoriteGenre] = useState(null)
   
-    useEffect(() => {
+    /* useEffect(() => {
       if (userResult.data && token) {
+          
           setBooksOfFavoriteGenre(allBooks.filter(b => 
             b.genres.includes(userResult.data.me.favoriteGenre))
             )
       }
-  }, [userResult.data]) //eslint-disable-line
+  }, [userResult.data]) //eslint-disable-line */
+  
+
+  useEffect(() => {
+    if (userResult.data && token) {
+        console.log(userResult.data.me.favoriteGenre)
+        
+        getBooks({ variables: { genre: userResult.data.me.favoriteGenre } })
+    }
+
+}, [userResult.data]) //eslint-disable-line
+
+useEffect(() => {
+    if (booksResult.data) {
+        setBooksOfFavoriteGenre(booksResult.data.allBooks) //tähän genrekyselyn tulos
+    }  
+}, [booksResult.data])
   
   if (!show) {
     return null
   }
 
-  if (userResult.loading) {
+  if (userResult.loading || booksResult.loading) {
     return <div>Tietoja haetaan...</div>
   }
-
 
     return (
         <div>

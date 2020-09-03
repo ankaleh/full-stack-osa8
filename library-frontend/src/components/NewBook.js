@@ -25,7 +25,7 @@ const ALL_BOOKS = gql`
     }
   }
 `
-const ALL_AUTHORS = gql`
+/* const ALL_AUTHORS = gql`
   query {
     allAuthors {
       name
@@ -33,7 +33,7 @@ const ALL_AUTHORS = gql`
       bookCount
     }
   }
-`
+` */
 const NewBook = (props) => {
   const [title, setTitle] = useState('')
   const [author, setAuhtor] = useState('')
@@ -43,9 +43,19 @@ const NewBook = (props) => {
   
 
   const [createBook] = useMutation(CREATE_BOOK, {
-    refetchQueries: [ { query: ALL_BOOKS }, { query: ALL_AUTHORS }],
+    //refetchQueries: [ { query: ALL_BOOKS }, { query: ALL_AUTHORS }],
     onError: (error) => {
       props.setErrorMessage(error.graphQLErrors[0].message)
+    },
+    update: (store, response) => { //ilman tätä juuri lisätty kirja näkyy kaikkien kirjojen luettelossa, muttei genrensä kirjaluettelossa
+      const dataInStore = store.readQuery({ query: ALL_BOOKS })
+      store.writeQuery({
+        query: ALL_BOOKS,
+        data: {
+          ...dataInStore,
+          allBooks: [ ...dataInStore.allBooks, response.data.addBook ]
+        }
+      })
     }
   })
 

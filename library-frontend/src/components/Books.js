@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { gql, useQuery/* , useLazyQuery */ } from '@apollo/client'
+import { gql, useQuery, useLazyQuery } from '@apollo/client'
 
 const ALL_BOOKS = gql`
   query {
@@ -13,28 +13,44 @@ const ALL_BOOKS = gql`
     }
   }
 `
-/* const USER = gql`
-  query {
-    me {
-      favoriteGenre
+const BOOKS_OF_GENRE = gql`
+query allbooks($genre: String){
+  allBooks(genre: $genre) {
+    title
+    author {
+      name
     }
+    published
+    genres
   }
-` */
+}
+`
 const Books = ({token, show, booksOfGenre, setBooksOfGenre, allBooks, setAllBooks}) => {
 
   //const [booksOfGenre, setBooksOfGenre] = useState(null)
   const [buttonsTexts, setButtonsTexts] = useState([])
 
   const result = useQuery(ALL_BOOKS)
+  const [getBooks, booksResult] = useLazyQuery(BOOKS_OF_GENRE)
+
   //const [getUser, userResult] = useLazyQuery(USER)
 
-  const handleClick = (event) => {
+  /* const handleClick = (event) => {
     event.preventDefault()
     const text = event.target.value
     setBooksOfGenre(result.data.allBooks.filter(b => 
     b.genres.includes(text)))
     
     //console.log(buttonsTexts)
+  } */
+
+  const handleClick = (event) => {
+    event.preventDefault()
+    const text = event.target.value
+    getBooks({ variables: { genre: text } })
+    /* if (booksResult.data) { //booksResult.data on edellisen klikkauksen lähettämä data 
+      setBooksOfGenre(booksResult.data.allBooks)//genrehaun kirjat tähän
+    } */
   }
 
   /* const handleRecommendedClick = (event) => {
@@ -50,6 +66,8 @@ const Books = ({token, show, booksOfGenre, setBooksOfGenre, allBooks, setAllBook
     }
 }, [userResult]) //eslint-disable-line
  */
+
+
   useEffect(() => {
     if (result.data) {
       setAllBooks(result.data.allBooks)
@@ -71,12 +89,19 @@ const Books = ({token, show, booksOfGenre, setBooksOfGenre, allBooks, setAllBook
     }
 }, [result.data]) //eslint-disable-line
 
+useEffect(() => {
+  if (booksResult.data) {
+      setBooksOfGenre(booksResult.data.allBooks) //tähän genrekyselyn tulos
+  }  //tämä suoritetaan, kun booksResult-olio muuttuu (ei saa olla booksResult.data!)?:
+}, [booksResult]) //eslint-disable-line 
+
+
 
   if (!show) {
     return null
   }
 
-  if (result.loading /* && userResult.loading */) {
+  if (result.loading || booksResult.loading) {
     return <div>Tietoja haetaan...</div>
   }
 

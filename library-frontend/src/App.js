@@ -1,20 +1,23 @@
 
-import React, { useState/* , useEffect */ } from 'react'
+import React, { useState, useEffect  } from 'react'
 import Authors from './components/Authors'
 import Books from './components/Books'
 import NewBook from './components/NewBook'
 import LoginForm from './components/LoginForm'
-
-import { useApolloClient/* , useLazyQuery, gql */ } from '@apollo/client'
+import { useApolloClient, useMutation, gql/* , useLazyQuery, gql */ } from '@apollo/client'
 import Recommendations from './components/Recommendations'
 
-/* const USER = gql`
-  query {
-    me {
-      favoriteGenre
+
+const LOGIN = gql`
+    mutation login($username: String!, $password: String!){
+        login(
+            username: $username,
+            password: $password
+        ){
+            value
+        }
     }
-  }
-` */
+`
 const App = () => {
   const [page, setPage] = useState('authors')
   const [token, setToken] = useState(null)
@@ -24,6 +27,36 @@ const App = () => {
 
   const client = useApolloClient()
 
+  const [username, setUsername] = useState('')
+  const [password, setPassword] = useState('')
+    
+    
+    const [login, result] = useMutation(LOGIN, {
+        //refetchQueries: [ { query: ALL_BOOKS }, { query: ALL_AUTHORS }],
+        onError: (error) => {
+          setErrorMessage(error.graphQLErrors[0].message)
+        }
+      })
+    
+
+    useEffect(() => {
+        if (result.data) {
+            const token = result.data.login.value
+            setToken(token)
+            localStorage.setItem('library-user-token', token)
+        }
+        const token = localStorage.getItem('library-user-token')
+        setToken(token)
+    
+    }, [result.data]) // eslint-disable-line
+
+    const handleLogin = async (event) => {
+        event.preventDefault()
+        //tehdään kysely:
+        login({ variables: { username, password } })
+    }
+
+  
   /* const [getUser, userResult] = useLazyQuery(USER)
 
   const handleRecommendedClick = (event) => {
@@ -41,7 +74,10 @@ const App = () => {
 }, [userResult]) //eslint-disable-line
 
  */
+const tok = () => console.log(token)
+
   if (!token) {
+    tok()
     return (
       <div>
         <div>
@@ -60,12 +96,14 @@ const App = () => {
       <Books
         show={page === 'books'} token={token} booksOfGenre={booksOfGenre} setBooksOfGenre={setBooksOfGenre} allBooks={allBooks} setAllBooks={setAllBooks}
       />
-      <LoginForm show={page==='login'} token={token} setToken={setToken} errorMessage={errorMessage} setErrorMessage={setErrorMessage}/>
+      <LoginForm show={page==='login'} token={token} setToken={setToken} errorMessage={errorMessage} setErrorMessage={setErrorMessage} handleLogin={handleLogin} username={username} setUsername={setUsername} password={password} setPassword={setPassword}/>  
       </div>
     )
   }
   return (
+    
     <div>
+      {tok()}
       <div>
         <button onClick={() => setPage('authors')}>authors</button>
         <button onClick={() => {
